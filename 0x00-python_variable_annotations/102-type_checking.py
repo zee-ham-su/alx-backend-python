@@ -5,6 +5,10 @@ from typing import List, Tuple
 
 
 def zoom_array(lst: Tuple, factor: int = 2) -> List:
+    """Zooms in on each element in the tuple by
+    repeating it 'factor' times.
+
+    """
     zoomed_in: List[int] = [
         item for item in lst
         for i in range(factor)
