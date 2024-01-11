@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """ a function that Define and annotate
-variables with the specified values: 
+variables with the specified values:
 """
 
 a: int = 1
