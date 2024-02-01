@@ -31,3 +31,16 @@ class TestGithubOrgClient(unittest.TestCase):
             "https://api.github.com/orgs/{}".format(org))
 
         self.assertEqual(result, expct_result)
+
+    @patch("client.GithubOrgClient.org")
+    def test_public_repos_url(self, mock_org_method):
+        known_payload = {
+            'repos_url': 'https://api.github.com/users/google/repos'}
+        mock_org_method.return_value = known_payload
+
+        org_client = GithubOrgClient("google")
+
+        result = org_client._public_repos_url()
+        actual_result = result.get('repos_url', None)
+
+        self.assertEqual(actual_result, known_payload['repos_url'])
