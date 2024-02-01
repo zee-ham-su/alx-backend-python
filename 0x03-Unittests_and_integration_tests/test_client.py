@@ -23,9 +23,9 @@ class TestGithubOrgClient(unittest.TestCase):
         """Tests the `org` method."""
 
         magic_mock.return_value = MagicMock(return_value=expct_result)
-        gh_org_client = GithubOrgClient(org)
+        org_client = GithubOrgClient(org)
 
-        result = gh_org_client.org()
+        result = org_client.org()
 
         magic_mock.assert_called_once_with(
             "https://api.github.com/orgs/{}".format(org))
