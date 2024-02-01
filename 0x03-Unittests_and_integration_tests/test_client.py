@@ -3,24 +3,30 @@
 """
 
 import unittest
-from utils import get_json
+from typing import Dict
 from unittest.mock import patch, MagicMock
 from parameterized import parameterized
+
 from client import GithubOrgClient
 
 
 class TestGithubOrgClient(unittest.TestCase):
-    """Test class for GithubOrgClient"""
+    """Tests the `GithubOrgClient` class."""
 
     @parameterized.expand([
-        ("google",),
-        ("abc",),
+        ("google", {'login': "google"}),
+        ("abc", {'login': "abc"}),
     ])
-    @patch('client.GithubOrgClient.get_json', return_value=[{"name": "repo1"}, {"name": "repo2"}])
-    def test_org(self, org_name, mock_get_json):
-        """Test GithubOrgClient.org method"""
-        github_client = GithubOrgClient(org_name)
-        result = github_client.org()
+    @patch("client.get_json")
+    def test_org(self, org: str, resp: Dict, mocked_fxn: MagicMock) -> None:
+        """Tests the `org` method."""
 
-        self.assertEqual(result, [{"name": "repo1"}, {"name": "repo2"}])
-        mock_get_json.assert_called_once_with(f'https://api.github.com/orgs/{org_name}/repos', True)
+        mocked_fxn.return_value = MagicMock(return_value=resp)
+        gh_org_client = GithubOrgClient(org)
+
+        result = gh_org_client.org()
+
+        mocked_fxn.assert_called_once_with(
+            "https://api.github.com/orgs/{}".format(org))
+
+        self.assertEqual(result, resp)
