@@ -47,7 +47,7 @@ class TestGithubOrgClient(unittest.TestCase):
                 org_client._public_repos_url,
                 "https://api.github.com/users/google/repos",
             )
-        
+
     @patch("client.get_json")
     def test_public_repos(self, mock_get_json: MagicMock) -> None:
         """Tests the `public_repos` method."""
@@ -55,22 +55,22 @@ class TestGithubOrgClient(unittest.TestCase):
             'repos_url': "https://api.github.com/users/google/repos",
             'repos': [
                 {
-                    "id": 1, 
-                    "name": "Hamza", 
+                    "id": 1,
+                    "name": "Hamza",
                     "private": False,
                     "owner": {
                         "login": "google",
                         "id": 1,
                     },
-                "fork": False,
-                "url": "https://api.github.com/repos/google/hamza",
-                "html_url": "https://github.com/google/hamza",
-                "created_at": "2008-01-10T00:00:00Z",
-                "updated_at": "2020-01-10T00:00:00Z",
-                "has_issues": True,
-                "forks": 10,
-                "default_branch": "master",
-                },
+                    "fork": False,
+                    "url": "https://api.github.com/repos/google/hamza",
+                    "html_url": "https://github.com/google/hamza",
+                    "created_at": "2024-01-10T00:00:00Z",
+                    "updated_at": "2024-02-10T00:00:00Z",
+                    "has_issues": True,
+                    "forks": 10,
+                    "default_branch": "master",
+                    },
                 {
                     "id": 2,
                     "name": "abc",
@@ -82,8 +82,8 @@ class TestGithubOrgClient(unittest.TestCase):
                     "fork": False,
                     "url": "https://api.github.com/repos/google/abc",
                     "html_url": "https://github.com/google/abc",
-                    "created_at": "2008-01-10T00:00:00Z",
-                    "updated_at": "2020-01-10T00:00:00Z",
+                    "created_at": "2024-01-10T00:00:00Z",
+                    "updated_at": "2024-02-10T00:00:00Z",
                     "has_issues": True,
                     "forks": 10,
                     "default_branch": "master",
@@ -94,7 +94,7 @@ class TestGithubOrgClient(unittest.TestCase):
         with patch(
             "client.GithubOrgClient._public_repos_url",
             new_callable=PropertyMock,
-    ) as mock_public_repos_url:
+        ) as mock_public_repos_url:
             mock_public_repos_url.return_value = test_payload["repos_url"]
             result = GithubOrgClient("google").public_repos()
             self.assertEqual(result, ["Hamza", "abc"])
