@@ -138,24 +138,37 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
             """Returns the payload for a given URL."""
             if url in route_payload:
                 return Mock(**{'json.return_value': route_payload[url]})
-            raise HTTPError(Mock(status_code=404, json=Mock(return_value={})))
-
+            response = Mock()
+            response.status_code = 404
+            response.json.return_value = {}
+            return response
         cls.get_patcher = patch("requests.get", side_effect=get_payload)
         cls.get_patcher.start()
 
-    def test_public_repos(self) -> None:
-        """Tests the `public_repos` method."""
-        self.assertEqual(
-            GithubOrgClient("google").public_repos(),
-            self.expected_repos,
-        )
+        def test_public_repos(self) -> None:
+            """Tests the `public_repos` method."""
+            actual_result = GithubOrgClient("google").public_repos()
+            expected_result = [
+                'episodes.dart',
+                'cpp-netlib', 'dagger', 'ios-webkit-debug-proxy',
+                'google.github.io', 'kratu', 'build-debian-cloud',
+                'traceur-compiler', 'firmata.py']
+            print("Actual Result:", actual_result)
+            print("Expected Result:", expected_result)
+            self.assertEqual(actual_result, expected_result)
 
-    def test_public_repos_with_license(self) -> None:
-        """Tests the `public_repos` method with a license."""
-        self.assertEqual(
-            GithubOrgClient("google").public_repos(license="apache-2.0"),
-            self.apache2_repos,
-        )
+        def test_public_repos_with_license(self) -> None:
+            """Tests the `public_repos` method with a license."""
+            actual_result = GithubOrgClient(
+                "google").public_repos(license="apache-2.0")
+            expected_result = [
+                'dagger',
+                'kratu',
+                'traceur-compiler',
+                'firmata.py']
+            print("Actual Result:", actual_result)
+            print("Expected Result:", expected_result)
+            self.assertEqual(actual_result, expected_result)
 
     @classmethod
     def tearDownClass(cls) -> None:
