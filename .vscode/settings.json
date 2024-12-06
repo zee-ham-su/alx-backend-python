@@ -6,6 +6,8 @@
         "expct",
         "firmata",
         "kratu",
+        "mycursor",
+        "mydb",
         "netlib",
         "prodev",
         "traceur"

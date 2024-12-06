@@ -56,7 +56,7 @@ def create_table(connection):
             "user_id VARCHAR(36) PRIMARY KEY,"
             "name VARCHAR(255) NOT NULL,"
             "email VARCHAR(255) NOT NULL,"
-            "age DECIMAL(5,2) NOT NULL"
+            "age INT NOT NULL"
             ")"
 
         )
@@ -68,25 +68,23 @@ def create_table(connection):
         print(f"Error creating table: {err}")
 
 
-def insert_data(connection, csv_filepath):  # Change the parameter name
+def insert_data(connection, csv_filepath):
     """Inserts data into the user_data table from a CSV file."""
     try:
         with open(csv_filepath, 'r') as file:
             csv_reader = csv.reader(file)
-            next(csv_reader)  # skip the header
+            next(csv_reader)
 
             data_to_insert = []
             for row in csv_reader:
-                # Assuming columns are name, email, age in the CSV
                 user_id = str(uuid.uuid4())
                 name = row[0]
                 email = row[1]
-                age = float(row[2])  # convert age to decimal
-                # append as a tuple
+                age = int(row[2])
                 data_to_insert.append((user_id, name, email, age))
         cursor = connection.cursor()
         sql = "INSERT INTO user_data (user_id, name, email, age) VALUES (%s, %s, %s, %s)"
-        cursor.executemany(sql, data_to_insert)  # insert list of tuples
+        cursor.executemany(sql, data_to_insert)
         connection.commit()
         print(f"{cursor.rowcount} rows inserted.")
 
@@ -101,7 +99,6 @@ def data_generator(connection, chunk_size=1000):
     Generates rows from the user_data table in chunks.
     """
     try:
-        # Fetch rows as dictionaries
         cursor = connection.cursor(dictionary=True)
         query = "SELECT * FROM user_data"
         cursor.execute(query)
