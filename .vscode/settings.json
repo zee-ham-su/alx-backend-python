@@ -1,10 +1,13 @@
 {
     "cSpell.words": [
+        "csvfile",
         "customizer",
+        "executemany",
         "expct",
         "firmata",
         "kratu",
         "netlib",
+        "prodev",
         "traceur"
     ]
 }
