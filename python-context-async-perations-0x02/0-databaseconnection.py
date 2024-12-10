@@ -17,7 +17,7 @@ class DatabaseConnection:
 
 # Usage example
 if __name__ == "__main__":
-    with DatabaseConnection("example.db") as conn:
+    with DatabaseConnection("users.db") as conn:
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM users")
         results = cursor.fetchall()
