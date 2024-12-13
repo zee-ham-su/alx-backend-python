@@ -124,53 +124,36 @@ class TestGithubOrgClient(unittest.TestCase):
 ])
 class TestIntegrationGithubOrgClient(unittest.TestCase):
     """Integration tests for the `GithubOrgClient` class."""
-    get_patcher = patch("requests.get")
 
     @classmethod
     def setUpClass(cls) -> None:
         """Sets up the class fixtures."""
-        route_payload = {
-            'https://api.github.com/orgs/google': cls.org_payload,
-            'https://api.github.com/users/google/repos': cls.repos_payload,
-        }
+        cls.get_patcher = patch('requests.get')
+        cls.mock_get = cls.get_patcher.start()
 
-        def get_payload(url: str) -> Dict:
-            """Returns the payload for a given URL."""
+        def side_effect(url):
+            """Side effect function for mocking requests.get"""
+            route_payload = {
+                'https://api.github.com/orgs/google': cls.org_payload,
+                'https://api.github.com/orgs/google/repos': cls.repos_payload,
+            }
             if url in route_payload:
                 return Mock(**{'json.return_value': route_payload[url]})
-            response = Mock()
-            response.status_code = 404
-            response.json.return_value = {}
-            return response
-        cls.get_patcher = patch("requests.get", side_effect=get_payload)
-        cls.get_patcher.start()
+            return Mock(**{'json.return_value': {}})
 
-        def test_public_repos(self) -> None:
-            """Tests the `public_repos` method."""
-            actual_result = GithubOrgClient("google").public_repos()
-            expected_result = [
-                'episodes.dart',
-                'cpp-netlib', 'dagger', 'ios-webkit-debug-proxy',
-                'google.github.io', 'kratu', 'build-debian-cloud',
-                'traceur-compiler', 'firmata.py']
-            print("Actual Result:", actual_result)
-            print("Expected Result:", expected_result)
-            self.assertEqual(actual_result, expected_result)
-
-        def test_public_repos_with_license(self) -> None:
-            """Tests the `public_repos` method with a license."""
-            actual_result = GithubOrgClient(
-                "google").public_repos(license="apache-2.0")
-            expected_result = [
-                'dagger',
-                'kratu',
-                'traceur-compiler',
-                'firmata.py']
-            print("Actual Result:", actual_result)
-            print("Expected Result:", expected_result)
-            self.assertEqual(actual_result, expected_result)
+        cls.mock_get.side_effect = side_effect
 
     @classmethod
     def tearDownClass(cls) -> None:
         """Tears down the class fixtures."""
         cls.get_patcher.stop()
+
+    def test_public_repos(self) -> None:
+        """Tests the `public_repos` method."""
+        client = GithubOrgClient("google")
+        self.assertEqual(client.public_repos(), self.expected_repos)
+
+    def test_public_repos_with_license(self) -> None:
+        """Tests the `public_repos` method with a license."""
+        client = GithubOrgClient("google")
+        self.assertEqual(client.public_repos(license="apache-2.0"), self.apache2_repos)
