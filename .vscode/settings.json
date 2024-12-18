@@ -2,6 +2,7 @@
     "cSpell.words": [
         "csvfile",
         "customizer",
+        "dotenv",
         "executemany",
         "expct",
         "firmata",
@@ -10,6 +11,7 @@
         "mydb",
         "netlib",
         "prodev",
+        "rvlwv",
         "traceur"
     ]
 }
