@@ -5,6 +5,7 @@
         "dotenv",
         "executemany",
         "expct",
+        "filterset",
         "firmata",
         "kratu",
         "mycursor",
