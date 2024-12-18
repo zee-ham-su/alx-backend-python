@@ -1,0 +1,20 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "shell",
+			"label": "installDependencies",
+			"command": "pip",
+			"args": [
+				"install",
+				"djangorestframework"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}/messaging_app"
+			},
+			"presentation": {
+				"reveal": "silent"
+			}
+		}
+	]
+}
