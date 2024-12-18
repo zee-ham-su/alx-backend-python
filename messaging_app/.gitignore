@@ -1,0 +1,9 @@
+# Ignore Python compiled files
+*.pyc
+__pycache__/
+
+new-env/
+venv/
+.env/
+.env/
+.env
