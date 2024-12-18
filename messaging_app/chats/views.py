@@ -8,18 +8,14 @@ from .serializers import (
     MessageSerializer, MessageCreateSerializer
 )
 
-
 class ConversationFilter(filters.FilterSet):
     participant = filters.CharFilter(field_name='participants__user_id')
-    created_after = filters.DateTimeFilter(
-        field_name='created_at', lookup_expr='gte')
-    created_before = filters.DateTimeFilter(
-        field_name='created_at', lookup_expr='lte')
+    created_after = filters.DateTimeFilter(field_name='created_at', lookup_expr='gte')
+    created_before = filters.DateTimeFilter(field_name='created_at', lookup_expr='lte')
 
     class Meta:
         model = Conversation
         fields = ['participant', 'created_after', 'created_before']
-
 
 class ConversationViewSet(viewsets.ModelViewSet):
     queryset = Conversation.objects.all()
@@ -47,26 +43,28 @@ class ConversationViewSet(viewsets.ModelViewSet):
         message = serializer.save(conversation=conversation)
         return Response(MessageSerializer(message).data, status=status.HTTP_201_CREATED)
 
-
 class MessageFilter(filters.FilterSet):
-    conversation = filters.CharFilter(
-        field_name='conversation__conversation_id')
+    conversation = filters.CharFilter(field_name='conversation__conversation_id')
     sender = filters.CharFilter(field_name='sender__user_id')
-    sent_after = filters.DateTimeFilter(
-        field_name='sent_at', lookup_expr='gte')
-    sent_before = filters.DateTimeFilter(
-        field_name='sent_at', lookup_expr='lte')
+    sent_after = filters.DateTimeFilter(field_name='sent_at', lookup_expr='gte')
+    sent_before = filters.DateTimeFilter(field_name='sent_at', lookup_expr='lte')
 
     class Meta:
         model = Message
         fields = ['conversation', 'sender', 'sent_after', 'sent_before']
-
 
 class MessageViewSet(viewsets.ModelViewSet):
     queryset = Message.objects.all()
     serializer_class = MessageSerializer
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_class = MessageFilter
+
+    def get_queryset(self):
+        return Message.objects.filter(conversation=self.kwargs['conversation_pk'])
+
+    def perform_create(self, serializer):
+        conversation = Conversation.objects.get(pk=self.kwargs['conversation_pk'])
+        serializer.save(conversation=conversation)
 
     def get_serializer_class(self):
         if self.action == 'create':
