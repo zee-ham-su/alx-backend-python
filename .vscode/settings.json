@@ -12,6 +12,7 @@
         "netlib",
         "prodev",
         "rvlwv",
-        "traceur"
+        "traceur",
+        "viewsets"
     ]
 }
