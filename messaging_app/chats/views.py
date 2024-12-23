@@ -8,7 +8,7 @@ from .serializers import (
     MessageSerializer, MessageCreateSerializer
 )
 from rest_framework.permissions import IsAuthenticated
-from .permissions import IsParticipant, IsMessageSender
+from .permissions import IsParticipant, IsOwnerOrReadOnly
 
 
 class ConversationFilter(filters.FilterSet):
@@ -24,7 +24,7 @@ class ConversationFilter(filters.FilterSet):
 
 
 class ConversationViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated, IsParticipant]
+    permission_classes = [IsOwnerOrReadOnly]
     queryset = Conversation.objects.all()
     serializer_class = ConversationSerializer
     filter_backends = (filters.DjangoFilterBackend,)
@@ -75,7 +75,7 @@ class MessageFilter(filters.FilterSet):
 
 
 class MessageViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated, IsMessageSender]
+    permission_classes = [IsOwnerOrReadOnly]
     queryset = Message.objects.all()
     serializer_class = MessageSerializer
     filter_backends = (filters.DjangoFilterBackend,)
