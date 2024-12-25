@@ -1,34 +1,21 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from django_filters import rest_framework as filters
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.pagination import PageNumberPagination
+from django_filters.rest_framework import DjangoFilterBackend
 from .models import Conversation, Message
 from .serializers import (
     ConversationSerializer, ConversationCreateSerializer,
     MessageSerializer, MessageCreateSerializer
 )
-from .permissions import IsParticipant, IsMessageSender
-
-
-class ConversationFilter(filters.FilterSet):
-    participant = filters.CharFilter(field_name='participants__user_id')
-    created_after = filters.DateTimeFilter(
-        field_name='created_at', lookup_expr='gte')
-    created_before = filters.DateTimeFilter(
-        field_name='created_at', lookup_expr='lte')
-
-    class Meta:
-        model = Conversation
-        fields = ['participant', 'created_after', 'created_before']
+from .permissions import IsParticipantOfConversation, IsMessageSender
+from .filters import MessageFilter
 
 
 class ConversationViewSet(viewsets.ModelViewSet):
     queryset = Conversation.objects.all()
     serializer_class = ConversationSerializer
-    filter_backends = (filters.DjangoFilterBackend,)
-    filterset_class = ConversationFilter
-    permission_classes = [IsAuthenticated, IsParticipant]
+    permission_classes = [IsParticipantOfConversation]
 
     def get_queryset(self):
         return Conversation.objects.filter(participants=self.request.user)
@@ -56,26 +43,19 @@ class ConversationViewSet(viewsets.ModelViewSet):
         return Response(MessageSerializer(message).data, status=status.HTTP_201_CREATED)
 
 
-class MessageFilter(filters.FilterSet):
-    conversation = filters.CharFilter(
-        field_name='conversation__conversation_id')
-    sender = filters.CharFilter(field_name='sender__user_id')
-    sent_after = filters.DateTimeFilter(
-        field_name='sent_at', lookup_expr='gte')
-    sent_before = filters.DateTimeFilter(
-        field_name='sent_at', lookup_expr='lte')
-
-    class Meta:
-        model = Message
-        fields = ['conversation', 'sender', 'sent_after', 'sent_before']
+class MessagePagination(PageNumberPagination):
+    page_size = 20
+    page_size_query_param = 'page_size'
+    max_page_size = 100
 
 
 class MessageViewSet(viewsets.ModelViewSet):
     queryset = Message.objects.all()
     serializer_class = MessageSerializer
-    filter_backends = (filters.DjangoFilterBackend,)
+    permission_classes = [IsParticipantOfConversation, IsMessageSender]
+    pagination_class = MessagePagination
+    filter_backends = [DjangoFilterBackend]
     filterset_class = MessageFilter
-    permission_classes = [IsAuthenticated, IsMessageSender]
 
     def get_queryset(self):
         return Message.objects.filter(conversation__participants=self.request.user)

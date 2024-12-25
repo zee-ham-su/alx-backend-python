@@ -1,0 +1,168 @@
+{
+	"info": {
+		"_postman_id": "5a3e08d2-fbec-4dc0-87f0-74a6e426e598",
+		"name": "Messaging App API Tests",
+		"description": " **Testing Workflow**\n\n1. **Login**: Start by logging in and getting a JWT token.\n    \n2. **Create Conversation**: Create a new conversation with at least two participants.\n    \n3. **Send Messages**: Send test messages to the created conversation.\n    \n4. **Fetch Conversations**: Fetch all conversations for the logged-in user and verify access.\n    \n5. **Fetch Specific Conversation and Messages**: Try to view a specific conversation and its messages to ensure only participants can access them.\n    \n\n### **Expected Behavior**\n\n- Only authorized users with a valid JWT token should be able to access or modify conversations and messages.\n    \n- Unauthorized users should receive a `401 Unauthorized` error when trying to access private conversations or send messages.\n    \n- Conversations should be created with at least two participants, and messages should be associated with a valid conversation.\n    \n\n### **Error Handling**\n\n- Ensure that appropriate error messages are returned for missing fields, invalid data, or unauthorized actions.\n    \n",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "31250987",
+		"_collection_link": "https://hsufiian.postman.co/workspace/aad07fb3-a7a9-447a-8efc-1ef5354921de/collection/31250987-5a3e08d2-fbec-4dc0-87f0-74a6e426e598?action=share&source=collection_link&creator=31250987"
+	},
+	"item": [
+		{
+			"name": "Token",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\": \"user4\",\r\n    \"password\": \"password123\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://127.0.0.1:8000/api/token/",
+				"description": "### Token Generation\n\nThis endpoint is used to generate a token for authentication. The request should be sent via an HTTP POST method to the specified URL.\n\n#### Request Body\n\n- `username` (string) - The username of the user.\n    \n- `password` (string) - The password of the user.\n    \n\n#### Response\n\nThe response will include the generated token for authentication."
+			},
+			"response": []
+		},
+		{
+			"name": "conversations",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM1MTI0ODIzLCJpYXQiOjE3MzUxMjEyMjMsImp0aSI6IjQzYzNiZWYxZGU5OTRkZDdhODdiYTk2YTgxMGEzYWU0IiwidXNlcl9pZCI6IjA5NWM4ODI3LTY4ZjQtNGVmOS04ZDc3LTExOGU4YTEwMzgxNSIsInVzZXJuYW1lIjoidXNlcjQiLCJlbWFpbCI6InVzZXI0QGV4YW1wbGUuY29tIn0.QGJvKWlt4AMnO3vMMO7YfQo40YSRspCY0lkgO1MJsaU"
+					}
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"participants\": [\r\n        \"095c8827-68f4-4ef9-8d77-118e8a103815\",\r\n        \"0b11cf55-e060-4f4a-a850-32ae03d8a68c\"\r\n    ],\r\n    \"initial_message\": \"Hello, this is a test conversation.\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://127.0.0.1:8000/api/conversations/",
+				"description": "### POST /api/conversations/\n\nThis endpoint is used to create a new conversation.\n\n#### Request Body\n\n- `participants` (array of strings) - An array of participant IDs.\n    \n- `initial_message` (string) - The initial message for the conversation.\n    \n\n#### Response\n\nThe response is in JSON format and includes the following fields:\n\n- `conversation_id` (string) - The ID of the conversation.\n    \n- `participants` (array) - An array of participant objects with the following fields:\n    \n    - `user_id` (string) - The ID of the user.\n        \n    - `email` (string) - The email of the user.\n        \n    - `first_name` (string) - The first name of the user.\n        \n    - `last_name` (string) - The last name of the user.\n        \n    - `full_name` (string) - The full name of the user.\n        \n    - `phone_number` (string) - The phone number of the user.\n        \n    - `role` (string) - The role of the user.\n        \n- `messages` (array) - An array of message objects with the following fields:\n    \n    - `message_id` (string) - The ID of the message.\n        \n    - `sender` (object) - The sender of the message with the same fields as the `participants` array.\n        \n    - `message_body` (string) - The body of the message.\n        \n    - `sent_at` (string) - The timestamp when the message was sent.\n        \n    - `formatted_sent_at` (string) - The formatted timestamp when the message was sent.\n        \n- `created_at` (string) - The timestamp when the conversation was created.\n    \n- `last_message` (object) - The last message object with the same fields as the `messages` array.\n    \n\n#### Example\n\n``` json\n{\n  \"conversation_id\": \"12345\",\n  \"participants\": [\n    {\n      \"user_id\": \"6789\",\n      \"email\": \"user@example.com\",\n      \"first_name\": \"John\",\n      \"last_name\": \"Doe\",\n      \"full_name\": \"John Doe\",\n      \"phone_number\": \"123-456-7890\",\n      \"role\": \"participant\"\n    },\n    {\n      \"user_id\": \"9876\",\n      \"email\": \"admin@example.com\",\n      \"first_name\": \"Admin\",\n      \"last_name\": \"User\",\n      \"full_name\": \"Admin User\",\n      \"phone_number\": \"987-654-3210\",\n      \"role\": \"admin\"\n    }\n  ],\n  \"messages\": [\n    {\n      \"message_id\": \"54321\",\n      \"sender\": {\n        \"user_id\": \"6789\",\n        \"email\": \"user@example.com\",\n        \"first_name\": \"John\",\n        \"last_name\": \"Doe\",\n        \"full_name\": \"John Doe\",\n        \"phone_number\": \"123-456-7890\",\n        \"role\": \"participant\"\n      },\n      \"message_body\": \"Hello, this is a test conversation.\",\n      \"sent_at\": \"2022-01-01T12:00:00Z\",\n      \"formatted_sent_at\": \"January 1, 2022 12:00 PM\"\n    }\n  ],\n  \"created_at\": \"2022-01-01T12:00:00Z\",\n  \"last_message\": {\n    \"message_id\": \"54321\",\n    \"sender\": {\n      \"user_id\": \"6789\",\n      \"email\": \"user@example.com\",\n      \"first_name\": \"John\",\n      \"last_name\": \"Doe\",\n      \"full_name\": \"John Doe\",\n      \"phone_number\": \"123-456-7890\",\n      \"role\": \"participant\"\n    },\n    \"message_body\": \"Hello, this is a test conversation.\",\n    \"sent_at\": \"2022-01-01T12:00:00Z\",\n    \"formatted_sent_at\": \"January 1, 2022 12:00 PM\"\n  }\n}\n\n ```"
+			},
+			"response": []
+		},
+		{
+			"name": "creating message in a conversation",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM1MTI0ODIzLCJpYXQiOjE3MzUxMjEyMjMsImp0aSI6IjQzYzNiZWYxZGU5OTRkZDdhODdiYTk2YTgxMGEzYWU0IiwidXNlcl9pZCI6IjA5NWM4ODI3LTY4ZjQtNGVmOS04ZDc3LTExOGU4YTEwMzgxNSIsInVzZXJuYW1lIjoidXNlcjQiLCJlbWFpbCI6InVzZXI0QGV4YW1wbGUuY29tIn0.QGJvKWlt4AMnO3vMMO7YfQo40YSRspCY0lkgO1MJsaU"
+					}
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"conversation\": \"55feae88-79bb-4d86-a666-a4b932e95db4\",\r\n    \"message_body\": \"Hello, this is a test message!\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://127.0.0.1:8000//api/conversations/55feae88-79bb-4d86-a666-a4b932e95db4/messages/",
+				"description": "### POST /api/conversations/{conversation_id}/messages/\n\nThis endpoint is used to create a new message within a specific conversation.\n\n#### Request Body\n\n- `conversation` (string): The ID of the conversation.\n    \n- `message_body` (string): The content of the message.\n    \n\n#### Response\n\nThe response is in JSON format and includes the following fields:\n\n- `message_id` (string): The ID of the newly created message.\n    \n- `sender` (object): Information about the sender of the message.\n    \n    - `user_id` (string): The ID of the sender user.\n        \n    - `email` (string): The email address of the sender.\n        \n    - `first_name` (string): The first name of the sender.\n        \n    - `last_name` (string): The last name of the sender.\n        \n    - `full_name` (string): The full name of the sender.\n        \n    - `phone_number` (string): The phone number of the sender, if available.\n        \n    - `role` (string): The role of the sender.\n        \n- `message_body` (string): The content of the message.\n    \n- `sent_at` (string): The timestamp when the message was sent.\n    \n- `formatted_sent_at` (string): The formatted timestamp when the message was sent.\n    \n\n``` json\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"message_id\": { \"type\": \"string\" },\n    \"sender\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"user_id\": { \"type\": \"string\" },\n        \"email\": { \"type\": \"string\" },\n        \"first_name\": { \"type\": \"string\" },\n        \"last_name\": { \"type\": \"string\" },\n        \"full_name\": { \"type\": \"string\" },\n        \"phone_number\": { \"type\": [\"string\", \"null\"] },\n        \"role\": { \"type\": \"string\" }\n      }\n    },\n    \"message_body\": { \"type\": \"string\" },\n    \"sent_at\": { \"type\": \"string\" },\n    \"formatted_sent_at\": { \"type\": \"string\" }\n  }\n}\n\n ```"
+			},
+			"response": []
+		},
+		{
+			"name": "get messages by conversation id",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM1MTI0ODIzLCJpYXQiOjE3MzUxMjEyMjMsImp0aSI6IjQzYzNiZWYxZGU5OTRkZDdhODdiYTk2YTgxMGEzYWU0IiwidXNlcl9pZCI6IjA5NWM4ODI3LTY4ZjQtNGVmOS04ZDc3LTExOGU4YTEwMzgxNSIsInVzZXJuYW1lIjoidXNlcjQiLCJlbWFpbCI6InVzZXI0QGV4YW1wbGUuY29tIn0.QGJvKWlt4AMnO3vMMO7YfQo40YSRspCY0lkgO1MJsaU"
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"url": "http://127.0.0.1:8000//api/conversations/298d5b64-1ffc-42dc-b331-3764076b8556/messages/",
+				"description": "### Request Description\n\nThis endpoint retrieves messages for a specific conversation identified by the conversation ID in the URL.\n\n### Request Body\n\nThis request does not require a request body.\n\n### Response\n\nThe response will be a JSON object with the following schema:\n\n``` json\n{\n  \"count\": integer,\n  \"next\": string or null,\n  \"previous\": string or null,\n  \"results\": [\n    {\n      \"message_id\": string,\n      \"sender\": {\n        \"user_id\": string,\n        \"email\": string,\n        \"first_name\": string,\n        \"last_name\": string,\n        \"full_name\": string,\n        \"phone_number\": string or null,\n        \"role\": string\n      },\n      \"message_body\": string,\n      \"sent_at\": string,\n      \"formatted_sent_at\": string\n    }\n  ]\n}\n\n ```\n\nThe `count` represents the total number of messages, `next` and `previous` are URLs for pagination, and `results` is an array of message objects. Each message object contains the message ID, sender details, message body, and timestamp information."
+			},
+			"response": []
+		},
+		{
+			"name": "get conversations by the auth user",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM1MTI0ODIzLCJpYXQiOjE3MzUxMjEyMjMsImp0aSI6IjQzYzNiZWYxZGU5OTRkZDdhODdiYTk2YTgxMGEzYWU0IiwidXNlcl9pZCI6IjA5NWM4ODI3LTY4ZjQtNGVmOS04ZDc3LTExOGU4YTEwMzgxNSIsInVzZXJuYW1lIjoidXNlcjQiLCJlbWFpbCI6InVzZXI0QGV4YW1wbGUuY29tIn0.QGJvKWlt4AMnO3vMMO7YfQo40YSRspCY0lkgO1MJsaU"
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"url": "http://127.0.0.1:8000/api/conversations/",
+				"description": "The API endpoint retrieves a list of conversations. The response is a JSON object with the following structure:\n\n- count (number): The total number of conversations.\n    \n- next (string): The URL for the next page of conversations, if available.\n    \n- previous (string): The URL for the previous page of conversations, if available.\n    \n- results (array): An array of conversation objects, each containing the following fields:\n    \n    - conversation_id (string): The unique identifier for the conversation.\n        \n    - participants (array): An array of participant objects, each containing the following fields:\n        \n        - user_id (string): The unique identifier for the user.\n            \n        - email (string): The email address of the participant.\n            \n        - first_name (string): The first name of the participant.\n            \n        - last_name (string): The last name of the participant.\n            \n        - full_name (string): The full name of the participant.\n            \n        - phone_number (string): The phone number of the participant, if available.\n            \n        - role (string): The role of the participant.\n            \n    - messages (array): An array of message objects, each containing the following fields:\n        \n        - message_id (string): The unique identifier for the message.\n            \n        - sender (object): The sender of the message, containing the following fields:\n            \n            - user_id (string): The unique identifier for the sender.\n                \n            - email (string): The email address of the sender.\n                \n            - first_name (string): The first name of the sender.\n                \n            - last_name (string): The last name of the sender.\n                \n            - full_name (string): The full name of the sender.\n                \n            - phone_number (string): The phone number of the sender, if available.\n                \n            - role (string): The role of the sender.\n                \n        - message_body (string): The content of the message.\n            \n        - sent_at (string): The timestamp when the message was sent.\n            \n        - formatted_sent_at (string): The formatted timestamp when the message was sent.\n            \n    - created_at (string): The timestamp when the conversation was created.\n        \n    - last_message (object): The last message in the conversation, containing the following fields:\n        \n        - message_id (string): The unique identifier for the message.\n            \n        - sender (object): The sender of the message, containing the following fields:\n            \n            - user_id (string): The unique identifier for the sender.\n                \n            - email (string): The email address of the sender.\n                \n            - first_name (string): The first name of the sender.\n                \n            - last_name (string): The last name of the sender.\n                \n            - full_name (string): The full name of the sender.\n                \n            - phone_number (string): The phone number of the sender, if available.\n                \n            - role (string): The role of the sender.\n                \n        - message_body (string): The content of the message.\n            \n        - sent_at (string): The timestamp when the message was sent.\n            \n        - formatted_sent_at (string): The formatted timestamp when the message was sent."
+			},
+			"response": []
+		},
+		{
+			"name": "trying to get conversations without an authorization header",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": "http://127.0.0.1:8000//api/conversations/298d5b64-1ffc-42dc-b331-3764076b8556/messages/",
+				"description": "### GET /api/conversations/298d5b64-1ffc-42dc-b331-3764076b8556/messages/\n\nThis endpoint retrieves the messages for a specific conversation but without authentication credentials\n\n#### Request\n\nNo request body is required for this request.\n\n#### Response\n\nThe response will be in JSON format with the following schema:\n\n``` json\n{\n    \"detail\": \"Authentication credentials were not provided.\"\n}\n\n ```\n\nThe response will contain a status code of 401 and a JSON object with a \"detail\" property, which is a string providing details about the unauthorized access."
+			},
+			"response": []
+		},
+		{
+			"name": "getting conversations with wrong token",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGffciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM1MTI0ODIzLCJpYXQiOjE3MzUxMjEyMjMsImp0aSI6IjQzYzNiZWYxZGU5OTRkZDdhODdiYTk2YTgxMGEzYWU0IiwidXNlcl9pZCI6IjA5NWM4ODI3LTY4ZjQtNGVmOS04ZDc3LTExOGU4YTEwMzgxNSIsInVzZXJuYW1lIjoidXNlcjQiLCJlbWFpbCI6InVzZXI0QGV4YW1wbGUuY29tIn0.QGJvKWlt4AMnO3vMMO7YfQo40YSRspCY0lkgO1MJsaU"
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"url": "http://127.0.0.1:8000/api/conversations/",
+				"description": "### Get Conversations\n\nThis endpoint makes an HTTP GET request to retrieve a list of conversations but with a wrong authentication token\n\n#### Request Body\n\nThis request does not require a request body.\n\n#### Response\n\n- Status: 401\n    \n- Content-Type: application/json\n    \n\nThe response will contain a JSON object with the following structure:\n\n``` json\n{\n    \"detail\": \"\",\n    \"code\": \"\",\n    \"messages\": [\n        {\n            \"token_class\": \"\",\n            \"token_type\": \"\",\n            \"message\": \"\"\n        }\n    ]\n}\n\n ```"
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": {}
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
