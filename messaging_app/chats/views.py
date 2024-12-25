@@ -2,13 +2,13 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters import rest_framework as filters
+from rest_framework.permissions import IsAuthenticated
 from .models import Conversation, Message
 from .serializers import (
     ConversationSerializer, ConversationCreateSerializer,
     MessageSerializer, MessageCreateSerializer
 )
-from rest_framework.permissions import IsAuthenticated
-from .permissions import IsParticipant, IsOwnerOrReadOnly
+from .permissions import IsParticipant, IsMessageSender
 
 
 class ConversationFilter(filters.FilterSet):
@@ -24,11 +24,11 @@ class ConversationFilter(filters.FilterSet):
 
 
 class ConversationViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsOwnerOrReadOnly]
     queryset = Conversation.objects.all()
     serializer_class = ConversationSerializer
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_class = ConversationFilter
+    permission_classes = [IsAuthenticated, IsParticipant]
 
     def get_queryset(self):
         return Conversation.objects.filter(participants=self.request.user)
@@ -38,22 +38,18 @@ class ConversationViewSet(viewsets.ModelViewSet):
             return ConversationCreateSerializer
         return ConversationSerializer
 
-    def perform_create(self, serializer):
-        conversation = serializer.save()
-        conversation.participants.add(self.request.user)
-
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
+        conversation = serializer.save()
+        conversation.participants.add(request.user)
         headers = self.get_success_headers(serializer.data)
-        return Response(ConversationSerializer(serializer.instance).data, status=status.HTTP_201_CREATED, headers=headers)
+        return Response(ConversationSerializer(conversation).data, status=status.HTTP_201_CREATED, headers=headers)
 
     @action(detail=True, methods=['post'])
     def add_message(self, request, pk=None):
         conversation = self.get_object()
-        serializer = MessageCreateSerializer(
-            data=request.data, context={'request': request})
+        serializer = MessageCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         message = serializer.save(
             conversation=conversation, sender=request.user)
@@ -75,11 +71,11 @@ class MessageFilter(filters.FilterSet):
 
 
 class MessageViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsOwnerOrReadOnly]
     queryset = Message.objects.all()
     serializer_class = MessageSerializer
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_class = MessageFilter
+    permission_classes = [IsAuthenticated, IsMessageSender]
 
     def get_queryset(self):
         return Message.objects.filter(conversation__participants=self.request.user)
@@ -89,12 +85,9 @@ class MessageViewSet(viewsets.ModelViewSet):
             return MessageCreateSerializer
         return MessageSerializer
 
-    def perform_create(self, serializer):
-        serializer.save(sender=self.request.user)
-
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
+        message = serializer.save(sender=request.user)
         headers = self.get_success_headers(serializer.data)
-        return Response(MessageSerializer(serializer.instance).data, status=status.HTTP_201_CREATED, headers=headers)
+        return Response(MessageSerializer(message).data, status=status.HTTP_201_CREATED, headers=headers)
