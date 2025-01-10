@@ -1,0 +1,10 @@
+<li>
+    <strong>{{ message.sender.username }}</strong>: {{ message.content }} <small>({{ message.timestamp }})</small>
+    {% if replies %}
+        <ul>
+            {% for reply_data in replies %}
+                {% include 'message_thread.html' with message=reply_data.message replies=reply_data.replies %}
+            {% endfor %}
+        </ul>
+    {% endif %}
+</li>

@@ -13,7 +13,16 @@ class Message(models.Model):
         return f"Message from {self.sender} to {self.receiver} at {self.timestamp}"
 
     def get_threaded_replies(self):
-        return self.replies.select_related('sender', 'receiver').prefetch_related('replies')
+        # Recursive query to fetch all replies for the current message
+        replies = self.replies.select_related('sender', 'receiver').prefetch_related('replies')
+        threaded_replies = []
+        for reply in replies:
+            threaded_replies.append({
+                'message': reply,
+                'replies': reply.get_threaded_replies()  # Recursive call
+            })
+        return threaded_replies
+
 
 class MessageHistory(models.Model):
     message = models.ForeignKey(Message, on_delete=models.CASCADE, related_name='history')

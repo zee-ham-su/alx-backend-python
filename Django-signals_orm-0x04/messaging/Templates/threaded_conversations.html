@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Threaded Conversations</title>
+</head>
+<body>
+    <h1>Threaded Conversations</h1>
+    <ul>
+        {% for data in messages %}
+            {% include 'message_thread.html' with message=data.message replies=data.replies %}
+        {% endfor %}
+    </ul>
+</body>
+</html>
