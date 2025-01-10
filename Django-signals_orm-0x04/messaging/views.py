@@ -50,6 +50,6 @@ def threaded_conversations(request):
 @login_required
 def unread_messages(request):
     # Fetch unread messages for the logged-in user
-    unread_messages = Message.unread.for_user(request.user)
+    unread_messages = Message.unread.for_user(request.user).only(sender='sender', content='content', timestamp='timestamp')
 
     return render(request, 'unread_messages.html', {'messages': unread_messages})
