@@ -46,3 +46,10 @@ def threaded_conversations(request):
         })
 
     return render(request, 'threaded_conversations.html', {'messages': threaded_data})
+
+@login_required
+def unread_messages(request):
+    # Fetch unread messages for the logged-in user
+    unread_messages = Message.unread.for_user(request.user)
+
+    return render(request, 'unread_messages.html', {'messages': unread_messages})
