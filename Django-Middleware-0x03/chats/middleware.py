@@ -1,8 +1,8 @@
 import logging
-from datetime import datetime, time
+from datetime import datetime, time, timedelta
 from django.utils.deprecation import MiddlewareMixin
 from django.http import HttpResponseForbidden
-
+from collections import defaultdict
 
 logger = logging.getLogger(__name__)
 
@@ -36,5 +36,46 @@ class RestrictAccessByTimeMiddleware:
         if start_time <= now or now <= end_time:
             return HttpResponseForbidden("Access to the messaging app is restricted between 9 PM and 6 AM.")
 
+        response = self.get_response(request)
+        return response
+
+
+
+class OffensiveLanguageMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+        self.ip_message_count = defaultdict(list)
+        self.MESSAGE_LIMIT = 5
+        self.TIME_WINDOW = timedelta(minutes=1)
+
+    def __call__(self, request):
+        ip_address = request.META.get('REMOTE_ADDR')
+
+        if request.method == 'POST':
+            now = datetime.now()
+            self.ip_message_count[ip_address] = [
+                timestamp for timestamp in self.ip_message_count[ip_address]
+                if now - timestamp < self.TIME_WINDOW
+            ]
+            if len(self.ip_message_count[ip_address]) >= self.MESSAGE_LIMIT:
+                return HttpResponseForbidden("You have exceeded the message limit. Please try again later.")
+            self.ip_message_count[ip_address].append(now)
+        response = self.get_response(request)
+        return response
+
+
+class RolePermissionMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        ALLOWED_ROLES = ['admin', 'host'] 
+        user = request.user
+        if hasattr(user, 'role'):
+            user_role = user.role
+        else:
+            user_role = 'guest'
+        if user_role not in ALLOWED_ROLES:
+            return HttpResponseForbidden("You do not have permission to perform this action.")
         response = self.get_response(request)
         return response
