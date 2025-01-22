@@ -6,7 +6,7 @@ services:
     environment:
       MYSQL_USER: sufian_hamza
       MYSQL_PASSWORD: russ3509
-      MYSQL_DATABASE: m_app_db
+      MYSQL_DB: m_app_db
     ports:
       - "3306:3306"
     volumes:
