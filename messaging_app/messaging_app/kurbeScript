@@ -21,6 +21,11 @@ fi
 echo "Starting Minikube..."
 minikube start
 
+# Apply Deployment and Service YAML
+echo "Deploying Django app..."
+kubectl apply -f deployment.yaml
+kubectl apply -f service.yaml
+
 # Verify that the cluster is running
 echo "Verifying that the Kubernetes cluster is running..."
 kubectl cluster-info
@@ -29,4 +34,4 @@ kubectl cluster-info
 echo "Retrieving available pods..."
 kubectl get pods --all-namespaces
 
-echo "Kubernetes cluster setup and verification complete."
+echo "Kubernetes cluster setup and app deployment complete."

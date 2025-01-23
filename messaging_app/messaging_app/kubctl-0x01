@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# Exit script on any error
+set -e
+
+# Scale the Django app deployment to 3 replicas
+echo "Scaling Django app deployment to 3 replicas..."
+kubectl scale deployment messaging-app-deployment --replicas=3
+
+# Verify that multiple pods are running
+echo "Verifying that the pods are running..."
+kubectl get pods -l app=messaging-app
+
+# Retrieve Minikube IP and NodePort
+MINIKUBE_IP=$(minikube ip)
+NODE_PORT=$(kubectl get svc messaging-app-service -o=jsonpath='{.spec.ports[0].nodePort}')
+APP_URL="http://${MINIKUBE_IP}:${NODE_PORT}"
+
+# Perform load testing using wrk
+echo "Performing load testing on the app using wrk..."
+echo "Please ensure wrk is installed on your system."
+wrk -t4 -c100 -d30s "${APP_URL}"
+
+# Monitor resource usage using kubectl top
+echo "Monitoring resource usage..."
+kubectl top pods

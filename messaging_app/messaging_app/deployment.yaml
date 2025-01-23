@@ -5,7 +5,7 @@ metadata:
   labels:
     app: messaging-app
 spec:
-  replicas: 2
+  replicas: 3
   selector:
     matchLabels:
       app: messaging-app
@@ -44,4 +44,5 @@ spec:
     - protocol: TCP
       port: 8000
       targetPort: 8000
-  type: ClusterIP # Internal service for the cluster
+      nodePort: 30000
+  type: NodePort
