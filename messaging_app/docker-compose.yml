@@ -1,27 +1,28 @@
-version: '3.9'
 services:
   db:
-    image: mysql:5.7
-    container_name: mysql_db
+    image: postgres:13
     environment:
-      MYSQL_USER: sufian_hamza
-      MYSQL_PASSWORD: russ3509
-      MYSQL_DB: m_app_db
-    ports:
-      - "3306:3306"
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
     volumes:
-      - mysql_data:/var/lib/mysql
+      - db_data:/var/lib/postgresql/data
 
   web:
     build: .
-    container_name: django_app
     command: python3 manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/app
     ports:
       - "8000:8000"
+    environment:
+      - DATABASE_NAME=${DATABASE_NAME}
+      - DATABASE_USER=${DATABASE_USER}
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - DATABASE_HOST=db
+      - DATABASE_PORT=5432
     depends_on:
       - db
 
 volumes:
-  mysql_data:
+  db_data:
