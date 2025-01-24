@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# Define variables
+DEPLOYMENT_FILE="blue_deployment.yaml"
+SERVICE_URL="http://localhost:30000" # Update to your service's external URL if necessary
+
+echo "Applying the updated deployment file..."
+kubectl apply -f $DEPLOYMENT_FILE
+
+echo "Triggering rolling update and monitoring progress..."
+kubectl rollout status deployment/messaging-app-deployment
+
+echo "Testing for downtime by sending continuous requests..."
+for i in {1..30}; do
+    RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" $SERVICE_URL)
+    if [ "$RESPONSE" == "200" ]; then
+        echo "[$i] App is responding with HTTP 200 OK."
+    else
+        echo "[$i] App is not responding or returned HTTP $RESPONSE."
+    fi
+    sleep 1
+done
+
+echo "Rolling update complete. Verifying current pods..."
+kubectl get pods -l app=messaging-app
