@@ -5,7 +5,7 @@ metadata:
 spec:
   selector:
     app: messaging-app
-    version: blue # Start with blue; update to green during deployment
+    version: blue
   ports:
     - protocol: TCP
       port: 8000
