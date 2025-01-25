@@ -4,6 +4,7 @@ pipeline {
         stage('Clone Repository') {
             steps {
                 git credentialsId: 'github-credentials-id', url: 'https://github.com/zee-ham-su/alx-backend-python.git'
+                sh 'git branch'
             }
         }
         stage('Install Dependencies') {
