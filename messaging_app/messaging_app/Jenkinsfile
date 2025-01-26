@@ -3,32 +3,43 @@ pipeline {
     stages {
         stage('Clone Repository') {
             steps {
-                git credentialsId: 'github-credentials-id', url: 'https://github.com/zee-ham-su/alx-backend-python.git'
+                script {
+                    // Clone the repository from the specified branch
+                    git branch: 'Master', credentialsId: 'github-credentials-id', url: 'https://github.com/zee-ham-su/alx-backend-python.git'
+                }
                 sh 'git branch'
             }
         }
         stage('Install Dependencies') {
             steps {
-                sh 'pip3 install -r messaging_app/requirements.txt'
+                script {
+                    // Install dependencies from the requirements file
+                    sh 'pip3 install -r messaging_app/requirements.txt'
+                }
             }
         }
         stage('Run Tests') {
             steps {
-                sh 'pytest --junitxml=report.xml messaging_app/tests'
+                script {
+                    // Run tests and generate a report
+                    sh 'pytest --junitxml=report.xml messaging_app/tests'
+                }
             }
         }
         stage('Publish Report') {
             steps {
-                junit 'report.xml'
+                script {
+                    // Publish the test report
+                    junit 'report.xml'
+                }
             }
         }
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Define the Docker image name
+                    // Define the Docker image name and build the Docker image
                     def dockerImageName = 'hamzasufian2014812/messaging_app'
-                    // Build the Docker image
-                    docker.build(dockerImageName) // This builds the Docker image
+                    docker.build(dockerImageName)
                 }
             }
         }
@@ -39,7 +50,6 @@ pipeline {
                     def dockerImageName = 'hamzasufian2014812/messaging_app'
                     // Ensure the image is pushed to Docker Hub using the stored credentials
                     docker.withRegistry('https://index.docker.io/v1/', 'dockerhub-credentials-id') {
-                        // Push the image with the 'latest' tag
                         docker.image(dockerImageName).push('latest')
                     }
                 }
