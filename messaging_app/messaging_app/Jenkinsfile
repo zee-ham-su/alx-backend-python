@@ -14,7 +14,7 @@ pipeline {
             steps {
                 script {
                     // Install dependencies from the requirements file
-                    sh 'pip install -r messaging_app/requirements.txt'
+                    sh 'pip3 install -r messaging_app/requirements.txt'
                 }
             }
         }
